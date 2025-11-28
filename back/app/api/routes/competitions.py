@@ -22,23 +22,26 @@ router = APIRouter(prefix="/competitions", tags=["Competitions"])
 
 def map_competition_to_response(comp) -> dict:
     """将数据库模型映射到API响应格式"""
-    return {
-        "id": comp.id,
-        "name": comp.name,
-        "category": "创新创业",  # 可以从其他字段派生或设置默认值
-        "status": comp.status,
-        "level": comp.level,
-        "team": comp.mentor,  # 使用mentor字段作为team
-        "members": comp.team_members.get("members", []) if comp.team_members else [],
-        "registration_date": comp.registration_deadline,
-        "submission_deadline": comp.submission_deadline,
-        "final_date": comp.award_date,
-        "award": comp.award_level,
-        "progress": comp.progress_percent,
-        "description": None,  # 数据库中没有此字段
-        "created_at": comp.created_at,
-        "updated_at": comp.updated_at,
-    }
+    try:
+        return {
+            "id": str(comp.id),
+            "name": comp.name or "",
+            "category": "创新创业",  # 可以从其他字段派生或设置默认值
+            "status": comp.status or "planning",
+            "level": comp.level or "school",
+            "team": comp.mentor,  # 使用mentor字段作为team
+            "members": comp.team_members.get("members", []) if comp.team_members else [],
+            "registration_date": comp.registration_deadline,
+            "submission_deadline": comp.submission_deadline,
+            "final_date": comp.award_date,
+            "award": comp.award_level,
+            "progress": comp.progress_percent if comp.progress_percent is not None else 0,
+            "created_at": comp.created_at,
+            "updated_at": comp.updated_at,
+        }
+    except Exception as e:
+        print(f"Error mapping competition {comp.id}: {e}")
+        raise
 
 
 @router.get("/", response_model=PaginatedResponse[CompetitionListItem])
@@ -49,36 +52,56 @@ async def get_competitions(
     db: AsyncSession = Depends(get_session),
 ) -> Any:
     """获取比赛列表"""
-    filters = {}
-    if status:
-        # 状态映射
-        status_map = {
-            "进行中": "ongoing",
-            "已结束": "completed",
-            "待报名": "planning"
-        }
-        filters["status"] = status_map.get(status, status)
+    try:
+        filters = {}
+        if status:
+            # 状态映射
+            status_map = {
+                "进行中": "ongoing",
+                "已结束": "completed",
+                "待报名": "planning"
+            }
+            filters["status"] = status_map.get(status, status)
 
-    if search:
-        competitions = await crud_competition.search(
-            db, query=search, skip=pagination.offset, limit=pagination.size
+        if search:
+            competitions = await crud_competition.search(
+                db, query=search, skip=pagination.offset, limit=pagination.size
+            )
+            total = len(competitions)
+        else:
+            competitions = await crud_competition.get_multi(
+                db, skip=pagination.offset, limit=pagination.size, filters=filters
+            )
+            total = await crud_competition.count(db, filters=filters)
+
+        print(f"Found {len(competitions)} competitions")
+        
+        # 逐个映射并捕获错误
+        items = []
+        for comp in competitions:
+            try:
+                mapped = map_competition_to_response(comp)
+                item = CompetitionListItem(**mapped)
+                items.append(item)
+            except Exception as e:
+                print(f"Error processing competition {comp.id}: {e}")
+                import traceback
+                traceback.print_exc()
+                # 跳过有问题的记录
+                continue
+
+        return PaginatedResponse(
+            items=items,
+            total=total,
+            page=pagination.page,
+            size=pagination.size,
+            pages=(total + pagination.size - 1) // pagination.size,
         )
-        total = len(competitions)
-    else:
-        competitions = await crud_competition.get_multi(
-            db, skip=pagination.offset, limit=pagination.size, filters=filters
-        )
-        total = await crud_competition.count(db, filters=filters)
-
-    items = [CompetitionListItem(**map_competition_to_response(comp)) for comp in competitions]
-
-    return PaginatedResponse(
-        items=items,
-        total=total,
-        page=pagination.page,
-        size=pagination.size,
-        pages=(total + pagination.size - 1) // pagination.size,
-    )
+    except Exception as e:
+        print(f"Error in get_competitions: {e}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get("/stats", response_model=list[StatsResponse])
