@@ -1,0 +1,435 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Great+Vibes&family=Long+Cang&display=swap");
+
+.loginPage {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background: #000;
+  color: #fff;
+  font-family: "Great Vibes", cursive;
+}
+
+.loginPage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("/images/login-bg.jpg") center / cover no-repeat;
+  filter: blur(6px);
+  opacity: 0.35;
+  transform: scale(1.05);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.loginPage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.25));
+  z-index: 1;
+  pointer-events: none;
+}
+
+.loginHeader {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  padding: 16px;
+}
+
+.loginNav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.loginBrand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.loginLogoCanvas {
+  width: 80px;
+  height: 80px;
+}
+
+.loginTitle {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.loginLinks {
+  list-style: none;
+  display: flex;
+  gap: 24px;
+  margin: 0;
+  padding: 0;
+}
+
+.loginLinks a,
+.loginLinks button {
+  color: #f3f4f6;
+  text-decoration: none;
+  font-size: 16px;
+  transition: color 0.3s ease;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 0;
+}
+
+.loginLinks a:hover,
+.loginLinks button:hover {
+  color: #d1d5db;
+}
+
+.loginContent {
+  position: absolute;
+  top: 35%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  z-index: 10;
+  max-width: 800px;
+  width: 100%;
+  padding: 0 16px;
+}
+
+.loginHeading {
+  font-size: 88px;
+  font-weight: 700;
+  margin-bottom: 24px;
+  animation: textFloat 12s ease-in-out infinite;
+}
+
+.loginSubheading {
+  font-size: 16px;
+  margin-bottom: 32px;
+  font-weight: 400;
+  font-family: "Great Vibes", cursive;
+  animation: textFloat 10s ease-in-out infinite 1s;
+}
+
+.loginQuote {
+  font-size: 18px;
+  margin-bottom: 32px;
+  color: rgba(243, 244, 246, 0.85);
+  font-family: "Cormorant Garamond", serif;
+  letter-spacing: 0.04em;
+  animation: textFloat 14s ease-in-out infinite 0.5s;
+}
+
+.loginButton {
+  background: #fff;
+  color: #000;
+  font-weight: 700;
+  border: none;
+  padding: 14px 32px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+
+.loginButton:hover {
+  background: #f3f4f6;
+  transform: translateY(-2px);
+}
+
+.loginBackground {
+  position: absolute !important;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.loginPage :global([lang="en"]) {
+  font-family: "Great Vibes", cursive;
+  letter-spacing: 0.05em;
+}
+
+.authOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.authContainer {
+  position: relative;
+  width: min(960px, 100%);
+  max-height: 90vh;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  margin: auto;
+}
+
+.authClose {
+  position: absolute;
+  top: -16px;
+  right: -16px;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.9), rgba(220, 38, 38, 0.9));
+  color: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4), 0 0 0 0 rgba(239, 68, 68, 0.4);
+  z-index: 30;
+}
+
+.authClose:hover {
+  transform: scale(1.1) rotate(90deg);
+  background: linear-gradient(135deg, rgba(220, 38, 38, 1), rgba(185, 28, 28, 1));
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.6), 0 0 0 4px rgba(239, 68, 68, 0.2);
+}
+
+.authClose:active {
+  transform: scale(0.95) rotate(90deg);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.5), 0 0 0 2px rgba(239, 68, 68, 0.3);
+}
+
+.authCard {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 100%;
+  max-height: 90vh;
+  background: rgba(17, 24, 39, 0.95);
+  border-radius: 24px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+}
+
+.authIllustration {
+  position: relative;
+  display: none;
+}
+
+.authIllustration img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.8);
+}
+
+.authForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 48px;
+  background: rgba(17, 24, 39, 0.85);
+  backdrop-filter: blur(12px);
+  overflow-y: auto;
+  max-height: 90vh;
+}
+
+.authHeader h2 {
+  font-size: 28px;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.authHeader p {
+  font-size: 15px;
+  color: rgba(229, 231, 235, 0.75);
+  margin: 0;
+}
+
+.authField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.authField span {
+  color: rgba(243, 244, 246, 0.9);
+}
+
+.authField input {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(17, 24, 39, 0.65);
+  color: #f9fafb;
+  font-size: 14px;
+  transition: border 0.3s ease, background 0.3s ease;
+}
+
+.authField input:focus {
+  outline: none;
+  border-color: rgba(96, 165, 250, 0.8);
+  background: rgba(30, 41, 59, 0.8);
+}
+
+.authActionRow {
+  display: flex;
+  justify-content: flex-end;
+  font-size: 14px;
+}
+
+.authActionRow a {
+  color: rgba(96, 165, 250, 0.85);
+  text-decoration: none;
+}
+
+.authActionRow a:hover {
+  text-decoration: underline;
+}
+
+.authSubmit {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 14px;
+  padding: 14px;
+  color: #f9fafb;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.authSubmit:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 30px rgba(255, 255, 255, 0.12);
+}
+
+.authDivider {
+  position: relative;
+  text-align: center;
+  font-size: 13px;
+  color: rgba(156, 163, 175, 0.8);
+  margin: 4px 0;
+}
+
+.authDivider::before,
+.authDivider::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 35%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.authDivider::before {
+  left: 0;
+}
+
+.authDivider::after {
+  right: 0;
+}
+
+.authSocial {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.authSocial button {
+  padding: 12px 0;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(17, 24, 39, 0.8);
+  color: rgba(243, 244, 246, 0.9);
+  cursor: pointer;
+  font-size: 15px;
+  transition: transform 0.3s ease, border 0.3s ease, background 0.3s ease;
+}
+
+.authSocial button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(96, 165, 250, 0.85);
+  background: rgba(30, 41, 59, 0.8);
+}
+
+.authSwitch {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  color: rgba(209, 213, 219, 0.9);
+  margin-top: 4px;
+}
+
+.authSwitchLink {
+  color: rgba(96, 165, 250, 0.9);
+  background: transparent;
+  border: none;
+  font-size: inherit;
+  cursor: pointer;
+}
+
+.authSwitchLink:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .loginHeading {
+    font-size: 48px;
+  }
+
+  .loginSubheading {
+    font-size: 16px;
+  }
+
+  .loginLinks {
+    gap: 16px;
+  }
+
+  .authCard {
+    grid-template-columns: 1fr;
+  }
+
+  .authForm {
+    padding: 32px 24px;
+  }
+
+  .authIllustration {
+    display: none;
+  }
+
+  .authClose {
+    top: -12px;
+    right: -12px;
+  }
+}
+
+@media (min-width: 769px) {
+  .authIllustration {
+    display: block;
+  }
+}
+
+@keyframes textFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+

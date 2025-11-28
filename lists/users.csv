@@ -1,0 +1,7 @@
+﻿username,email,password_hash,role
+admin,admin@example.com,$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5PJx8y.w3qLry,admin
+0c0f9cde-5b09-4bd4-98de-e58b5321523d,user1,user1@example.com,$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5PJx8y.w3qLry,user
+3cd94c41-8530-4905-a109-a180d5c3a7ff,user2,user2@example.com,$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5PJx8y.w3qLry,user
+ecd30609-5adf-4a6d-96a8-9e99e21c1a8e,user3,user3@example.com,$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5PJx8y.w3qLry,user
+a6682411-c4d8-4fc4-b6c3-539201029440,researcher1,researcher1@example.com,$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5PJx8y.w3qLry,user
+37171812-dca0-4cd2-ad3e-23f251885d68,student1,student1@example.com,$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5PJx8y.w3qLry,user

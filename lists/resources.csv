@@ -1,0 +1,7 @@
+﻿name,resource_type,description,version,maintainer,maintenance_cycle_days,next_maintenance_date,license,download_count,usage_rate,image_path,file_path,external_url,tags,is_public
+ImageNet图像数据集,document,ImageNet图像数据集的详细说明和使用指南，包含完整的技术文档和示例代码...,v3.7,李工,169,2026-04-25,商业授权,3156,0.32,,/uploads/files/resources/b303b48e.tar.gz,https://pytorch.org/,"数据集,深度学习,开源工具",FALSE
+TensorFlow深度学习框架,tool,TensorFlow深度学习框架的详细说明和使用指南，包含完整的技术文档和示例代码...,v5.3,王工,138,2026-01-19,Apache 2.0,1757,0.48,,,https://pytorch.org/,"数据集,深度学习,开源工具",TRUE
+高性能计算服务器,tool,高性能计算服务器的详细说明和使用指南，包含完整的技术文档和示例代码...,v4.0,张工,59,2025-12-31,MIT,3008,0.76,/uploads/images/resources/9f1d237d.png,,https://www.tensorflow.org/,"数据集,深度学习,开源工具",FALSE
+科研文献数据库,document,科研文献数据库的详细说明和使用指南，包含完整的技术文档和示例代码...,v3.1,李工,132,2025-11-17,MIT,4735,0.77,/uploads/images/resources/853fee63.png,,,"数据集,深度学习,开源工具",TRUE
+代码质量检测工具,document,代码质量检测工具的详细说明和使用指南，包含完整的技术文档和示例代码...,v3.3,张工,135,2026-03-02,Apache 2.0,4853,0.59,/uploads/images/resources/0b4d6b76.jpg,/uploads/files/resources/db56ce09.pdf,https://www.tensorflow.org/,"数据集,深度学习,开源工具",TRUE
+数据可视化库,document,数据可视化库的详细说明和使用指南，包含完整的技术文档和示例代码...,v4.8,张工,157,2026-04-10,商业授权,2549,0.56,,/uploads/files/resources/004e42de.zip,https://github.com/example/dataset,"数据集,深度学习,开源工具",TRUE

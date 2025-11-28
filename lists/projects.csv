@@ -1,0 +1,11 @@
+﻿name,project_number,project_type,principal,start_date,end_date,budget,budget_used,status,progress_percent,priority,risk_level,description,image_path
+智慧城市关键技术研究,2024-N-001,provincial,陈工程师,2024-04-01,2026-02-10,2095000,817050,completed,45,high,low,智慧城市关键技术研究的详细描述，包括研究目标、技术路线、预期成果等内容...,/uploads/images/projects/7ab24c53.png
+工业互联网平台建设,2024-P-002,enterprise,王博士,2024-04-01,2026-01-29,2558000,1918500,ongoing,77,high,low,工业互联网平台建设的详细描述，包括研究目标、技术路线、预期成果等内容...,
+大数据分析系统开发,2024-P-003,enterprise,张教授,2024-01-01,2025-05-12,1311000,498180,planning,42,low,medium,大数据分析系统开发的详细描述，包括研究目标、技术路线、预期成果等内容...,/uploads/images/projects/9e330c1b.png
+人工智能应用示范,2024-E-004,national,张教授,2024-05-01,2025-07-03,3269000,1667190,suspended,46,low,high,人工智能应用示范的详细描述，包括研究目标、技术路线、预期成果等内容...,
+网络安全防护体系建设,2024-E-005,enterprise,张教授,2024-03-01,2025-07-21,578000,306340,planning,78,medium,low,网络安全防护体系建设的详细描述，包括研究目标、技术路线、预期成果等内容...,
+云计算服务平台研发,2024-P-006,national,陈工程师,2024-01-01,2025-12-17,690000,379500,completed,80,medium,medium,云计算服务平台研发的详细描述，包括研究目标、技术路线、预期成果等内容...,/uploads/images/projects/afcd10ce.png
+物联网监测系统构建,2024-E-007,enterprise,刘研究员,2024-06-01,2025-09-29,992000,257920,completed,48,high,low,物联网监测系统构建的详细描述，包括研究目标、技术路线、预期成果等内容...,/uploads/images/projects/3d52e1cd.jpg
+区块链应用创新研究,2024-N-008,enterprise,张教授,2024-03-01,2025-10-12,1984000,595200,ongoing,78,high,high,区块链应用创新研究的详细描述，包括研究目标、技术路线、预期成果等内容...,/uploads/images/projects/675aa6ba.png
+5G通信网络优化,2024-N-009,enterprise,张教授,2024-01-01,2025-12-06,2086000,604940,completed,68,medium,low,5G通信网络优化的详细描述，包括研究目标、技术路线、预期成果等内容...,/uploads/images/projects/6f5aab4d.jpg
+边缘计算平台开发,2024-P-010,national,刘研究员,2024-04-01,2025-06-04,2819000,986650,suspended,61,medium,low,边缘计算平台开发的详细描述，包括研究目标、技术路线、预期成果等内容...,/uploads/images/projects/ff78bdbf.png

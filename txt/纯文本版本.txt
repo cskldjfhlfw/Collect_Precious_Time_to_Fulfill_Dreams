@@ -1,0 +1,82 @@
+=== 数据库字段清单 (用于Excel导入) ===
+
+【1. papers - 论文表】
+id,title,authors,journal,conference,publish_date,doi,impact_factor,citation_count,writing_progress,status,abstract,keywords,related_projects,image_path,file_path,created_by,created_at,updated_at
+
+【2. patents - 专利表】
+id,name,patent_number,application_date,authorization_date,patent_type,status,technology_field,commercialization_value,maintenance_deadline,inventors,related_projects,image_path,file_path,created_by,created_at,updated_at
+
+【3. software_copyrights - 软著表】
+id,name,registration_number,registration_date,version,status,development_language,category,latest_update,maintenance_contact,developers,image_path,file_path,created_by,created_at,updated_at
+
+【4. projects - 项目表】
+id,name,project_number,project_type,principal,start_date,end_date,budget,budget_used,status,progress_percent,priority,risk_level,description,image_path,created_by,created_at,updated_at
+
+【5. competitions - 竞赛表】
+id,name,level,award_level,award_date,registration_deadline,submission_deadline,progress_percent,mentor,team_members,status,image_path,file_path,created_by,created_at,updated_at
+
+【6. conferences - 会议表】
+id,name,level,location,start_date,end_date,participation_type,submission_status,travel_budget,travel_expense,visa_required,reminder_date,participants,description,image_path,file_path,created_by,created_at,updated_at
+
+【7. cooperations - 合作表】
+id,organization,content,start_date,end_date,cooperation_type,status,cooperation_value,pipeline_stage,contact_person,contact_email,contact_phone,next_follow_up,image_path,file_path,created_by,created_at,updated_at
+
+【8. resources - 资源表】
+id,name,resource_type,description,version,maintainer,maintenance_cycle_days,next_maintenance_date,license,download_count,usage_rate,image_path,file_path,external_url,tags,is_public,created_by,created_at,updated_at
+
+【9. users - 用户表】
+id,username,email,password_hash,role,created_at,updated_at
+
+【10. relationships - 关系表】
+id,source_type,source_id,target_type,target_id,relationship_type,created_at,updated_at
+
+【11. resource_achievements - 资源成果关联表】
+id,resource_id,achievement_type,achievement_id,relationship_type,created_at,updated_at
+
+【12. paper_authors - 论文作者表】
+id,paper_id,author_id,author_name,affiliation,contribution_level,order_index,created_at,updated_at
+
+【13. project_milestones - 项目里程碑表】
+id,project_id,name,description,due_date,status,completion_percent,responsible_person,created_at,updated_at
+
+【14. tags - 标签表】
+id,name,color,created_at,updated_at
+
+【15. achievement_tags - 成果标签关联表】
+id,achievement_type,achievement_id,tag_id,created_at,updated_at
+
+【16. reminders - 提醒表】
+id,related_type,related_id,title,description,reminder_date,priority,status,created_by,created_at,updated_at
+
+【17. resource_usage_logs - 资源使用日志表】
+id,resource_id,user_id,usage_type,quantity,duration_hours,usage_date,notes,created_at,updated_at
+
+【18. resource_maintenance_tasks - 资源维护任务表】
+id,resource_id,task_name,scheduled_date,assignee,status,created_at,updated_at
+
+【19. search_saved_views - 保存的视图表】
+id,user_id,name,description,filters,last_used_at,created_at,updated_at
+
+
+=== 必填字段 ===
+
+papers: title, status
+patents: name, patent_number, patent_type
+projects: name, project_number, project_type
+software_copyrights: name, registration_number
+competitions: name, level
+conferences: name
+cooperations: organization
+resources: name, resource_type
+users: username, email, password_hash
+
+
+=== 状态枚举值 ===
+
+papers.status: draft, submitted, accepted, published
+patents.status: draft, pending, approved, rejected
+patents.patent_type: invention, utility, design
+projects.status: planning, ongoing, completed, suspended
+projects.project_type: national, provincial, enterprise
+competitions.level: international, national, provincial, school
+cooperations.status: negotiating, active, completed, terminated

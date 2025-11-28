@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics API 测试工具</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            max-width: 1000px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-left: 4px solid #2196F3;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .danger {
+            background: #f44336;
+        }
+        .danger:hover {
+            background: #da190b;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: 'Consolas', monospace;
+            font-size: 14px;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        .code {
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Analytics API 测试工具</h1>
+        
+        <div class="section">
+            <h2>1️⃣ 检查Token</h2>
+            <button onclick="checkToken()">检查Token</button>
+            <button onclick="clearToken()" class="danger">清除Token</button>
+            <div id="tokenResult"></div>
+        </div>
+
+        <div class="section">
+            <h2>2️⃣ 测试API接口</h2>
+            <button onclick="testOverviewAPI()">测试 /analytics/overview</button>
+            <button onclick="testNotificationAPI()">测试 /notifications/unread-count</button>
+            <div id="apiResult"></div>
+        </div>
+
+        <div class="section">
+            <h2>3️⃣ 查看统计数据</h2>
+            <button onclick="showSummary()">显示概览统计</button>
+            <div id="summaryResult"></div>
+        </div>
+
+        <div class="section">
+            <h2>📋 使用说明</h2>
+            <div class="code">
+1. 首先点击"检查Token"确认已登录
+2. 如果Token为null，请先访问 http://localhost:3000/auth 登录
+3. 登录后回到本页面，点击"测试API接口"
+4. 如果看到200状态码，说明修复成功
+5. 点击"显示概览统计"查看具体数据
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function checkToken() {
+            const token = localStorage.getItem('auth_token');
+            const user = localStorage.getItem('auth_user');
+            const resultDiv = document.getElementById('tokenResult');
+            
+            if (token) {
+                const userData = user ? JSON.parse(user) : null;
+                resultDiv.className = 'result success';
+                resultDiv.innerHTML = `✅ Token存在\n\nToken长度: ${token.length} 字符\n用户: ${userData?.username || '未知'}\n角色: ${userData?.role || '未知'}`;
+            } else {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = '❌ 未找到Token\n\n请先访问 http://localhost:3000/auth 登录';
+            }
+        }
+
+        function clearToken() {
+            if (confirm('确定要清除Token吗？清除后需要重新登录。')) {
+                localStorage.clear();
+                const resultDiv = document.getElementById('tokenResult');
+                resultDiv.className = 'result info';
+                resultDiv.innerHTML = '🗑️ Token已清除\n\n请访问 http://localhost:3000/auth 重新登录';
+            }
+        }
+
+        async function testOverviewAPI() {
+            const resultDiv = document.getElementById('apiResult');
+            const token = localStorage.getItem('auth_token');
+            
+            if (!token) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = '❌ 请先登录获取Token';
+                return;
+            }
+
+            resultDiv.className = 'result info';
+            resultDiv.innerHTML = '⏳ 正在测试 /analytics/overview...';
+
+            try {
+                const response = await fetch('http://localhost:8000/api/analytics/overview', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `✅ 测试成功！\n\n状态码: ${response.status}\n响应数据:\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `❌ 测试失败\n\n状态码: ${response.status}\n状态文本: ${response.statusText}\n\n可能原因:\n${response.status === 403 ? '- 后端服务需要重启\n- 权限不足' : ''}\n${response.status === 401 ? '- Token已过期，需要重新登录' : ''}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `❌ 网络错误\n\n${error.message}\n\n请确认:\n1. 后端服务是否运行在 http://localhost:8000\n2. 网络连接是否正常`;
+            }
+        }
+
+        async function testNotificationAPI() {
+            const resultDiv = document.getElementById('apiResult');
+            const token = localStorage.getItem('auth_token');
+            
+            if (!token) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = '❌ 请先登录获取Token';
+                return;
+            }
+
+            resultDiv.className = 'result info';
+            resultDiv.innerHTML = '⏳ 正在测试 /notifications/unread-count...';
+
+            try {
+                const response = await fetch('http://localhost:8000/api/notifications/unread-count', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `✅ 测试成功！\n\n状态码: ${response.status}\n未读通知: ${data.count}\n响应数据:\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `❌ 测试失败\n\n状态码: ${response.status}\n状态文本: ${response.statusText}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `❌ 网络错误\n\n${error.message}`;
+            }
+        }
+
+        async function showSummary() {
+            const resultDiv = document.getElementById('summaryResult');
+            const token = localStorage.getItem('auth_token');
+            
+            if (!token) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = '❌ 请先登录';
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:8000/api/analytics/overview', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const summary = data.summary || {};
+                    const total = Object.values(summary).reduce((sum, val) => sum + (typeof val === 'number' ? val : 0), 0);
+                    
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `📊 统计数据\n\n总成果数: ${total}\n\n详细数据:\n- 论文: ${summary.total_papers || 0}\n- 项目: ${summary.total_projects || 0}\n- 专利: ${summary.total_patents || 0}\n- 软著: ${summary.total_software_copyrights || 0}\n- 竞赛: ${summary.total_competitions || 0}\n- 会议: ${summary.total_conferences || 0}\n- 合作: ${summary.total_cooperations || 0}\n- 资源: ${summary.total_resources || 0}\n\n${total === 0 ? '⚠️ 数据库中暂无数据，请先添加科研成果' : '✅ 数据正常，应该能看到Badge'}`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `❌ 获取失败: ${response.status}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `❌ 错误: ${error.message}`;
+            }
+        }
+
+        // 页面加载时自动检查
+        window.onload = function() {
+            checkToken();
+        };
+    </script>
+</body>
+</html>
