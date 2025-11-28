@@ -459,8 +459,12 @@ export default function ProjectsPage() {
       ? selectedProject.team_members.join(", ")
       : typeof selectedProject.team_members === "string"
       ? selectedProject.team_members
-      : selectedProject.team_members
-      ? Object.values(selectedProject.team_members).join(", ")
+      : selectedProject.team_members && typeof selectedProject.team_members === "object"
+      ? (selectedProject.team_members.members 
+          ? Array.isArray(selectedProject.team_members.members)
+            ? selectedProject.team_members.members.join(", ")
+            : String(selectedProject.team_members.members)
+          : Object.values(selectedProject.team_members).join(", "))
       : ""
 
     setEditForm({
@@ -1117,8 +1121,12 @@ export default function ProjectsPage() {
                             ? selectedProject.team_members.join(", ")
                             : typeof selectedProject.team_members === "string"
                             ? selectedProject.team_members
-                            : selectedProject.team_members
-                            ? Object.values(selectedProject.team_members).join(", ")
+                            : selectedProject.team_members && typeof selectedProject.team_members === "object"
+                            ? (selectedProject.team_members.members 
+                                ? Array.isArray(selectedProject.team_members.members)
+                                  ? selectedProject.team_members.members.join(", ")
+                                  : String(selectedProject.team_members.members)
+                                : Object.values(selectedProject.team_members).join(", "))
                             : "未指定"}
                         </span>
                       </div>

@@ -1,5 +1,5 @@
 from typing import Dict
-from sqlalchemy import func, select
+from sqlalchemy import func, select, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.base import CRUDBase
@@ -45,10 +45,13 @@ class CRUDCompetition(CRUDBase[Competition, CompetitionCreate, CompetitionUpdate
         skip: int = 0,
         limit: int = 100,
     ) -> list[Competition]:
-        """搜索比赛"""
-        search_query = select(self.model).where(
-            self.model.name.ilike(f"%{query}%")
-        ).offset(skip).limit(limit)
+        """搜索比赛 - 支持多字段模糊搜索"""
+        search_query = select(self.model).where(or_(
+            func.coalesce(self.model.name, '').ilike(f"%{query}%"),
+            func.coalesce(self.model.level, '').ilike(f"%{query}%"),
+            func.coalesce(self.model.status, '').ilike(f"%{query}%"),
+            func.coalesce(self.model.mentor, '').ilike(f"%{query}%")
+        )).offset(skip).limit(limit)
         
         result = await db.execute(search_query)
         return list(result.scalars().all())

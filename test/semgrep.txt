@@ -1,0 +1,149 @@
+C:\Users\HP>docker run --rm -v //d/desk/Collect_Precious_Time_to_Fulfill_Dreams:/src semgrep/semgrep semgrep scan --config=auto /src
+
+
+┌─────────────┐
+│ Scan Status │
+└─────────────┘
+  Scanning 391 files tracked by git with 1063 Code rules:
+
+  Language      Rules   Files          Origin      Rules
+ ─────────────────────────────        ───────────────────
+  <multilang>      48     391          Community    1063
+  ts              166     142
+  python          243      99
+  json              4       4
+  js              156       3
+  yaml             31       1
+
+
+
+┌──────────────────┐
+│ 15 Code Findings │
+└──────────────────┘
+
+    /src/back/.env
+   ❯❯❱ generic.secrets.security.detected-generic-api-key.detected-generic-api-key
+          Generic API Key detected
+          Details: https://sg.run/qxj8
+
+           30┆ APP_ZHIPU_API_KEY=eaa3b37c207a434cba4673e04e33ab5a.myRbieKpvdtREKpH
+
+    /src/back/app/core/security.py
+   ❯❯❱ python.jwt.security.jwt-hardcode.jwt-python-hardcoded-secret
+          Hardcoded JWT secret or private key is used. This is a Insufficiently Protected Credentials
+          weakness: https://cwe.mitre.org/data/definitions/522.html Consider using an appropriate security
+          mechanism to protect the credentials (e.g. keeping secrets in environment variables)
+          Details: https://sg.run/l2E9
+
+           72┆ encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+    /src/back/app/services/token_blacklist.py
+   ❯❯❱ python.jwt.security.unverified-jwt-decode.unverified-jwt-decode
+          Detected JWT token decoded with 'verify=False'. This bypasses any integrity checks for the token
+          which means the token could be tampered with by malicious actors. Ensure that the JWT token is
+          verified.
+          Details: https://sg.run/6nyB
+
+           ▶▶┆ Autofix ▶ True
+           41┆ options={"verify_signature": False}  # 只解析不验证
+            ⋮┆----------------------------------------
+           ▶▶┆ Autofix ▶ True
+          109┆ options={"verify_signature": False}
+            ⋮┆----------------------------------------
+           ▶▶┆ Autofix ▶ True
+          150┆ options={"verify_signature": False}
+
+    /src/back/test_token_blacklist.py
+   ❯❯❱ python.jwt.security.jwt-hardcode.jwt-python-hardcoded-secret
+          Hardcoded JWT secret or private key is used. This is a Insufficiently Protected Credentials
+          weakness: https://cwe.mitre.org/data/definitions/522.html Consider using an appropriate security
+          mechanism to protect the credentials (e.g. keeping secrets in environment variables)
+          Details: https://sg.run/l2E9
+
+          121┆ expired_token = jwt.encode(
+          122┆     {"sub": "test_user_exp", "exp": exp_time},
+          123┆     "test_secret",
+          124┆     algorithm="HS256"
+          125┆ )
+
+    /src/back/verify_all_data.py
+   ❯❯❱ python.sqlalchemy.security.audit.avoid-sqlalchemy-text.avoid-sqlalchemy-text
+          sqlalchemy.text passes the constructed SQL statement to the database mostly unchanged. This means
+          that the usual SQL injection protections are not applied and this function is vulnerable to SQL
+          injection if user input can reach here. Use normal SQLAlchemy operators (such as `or_()`, `and_()`,
+          etc.) to construct SQL.
+          Details: https://sg.run/yP1O
+
+           49┆ result = await session.execute(text(f"SELECT COUNT(*) FROM {table_name}"))
+
+    /src/lists/users.csv
+   ❯❯❱ generic.secrets.security.detected-bcrypt-hash.detected-bcrypt-hash
+          bcrypt hash detected
+          Details: https://sg.run/3A8G
+
+            2┆ admin,admin@example.com,$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5PJx8y.w3qLry,admin
+            ⋮┆----------------------------------------
+            3┆ 0c0f9cde-5b09-4bd4-98de-
+               e58b5321523d,user1,user1@example.com,$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5PJx8y.
+               w3qLry,user
+            ⋮┆----------------------------------------
+            4┆ 3cd94c41-8530-4905-a109-
+               a180d5c3a7ff,user2,user2@example.com,$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5PJx8y.
+               w3qLry,user
+            ⋮┆----------------------------------------
+            5┆ ecd30609-5adf-4a6d-96a8-
+               9e99e21c1a8e,user3,user3@example.com,$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5PJx8y.
+               w3qLry,user
+            ⋮┆----------------------------------------
+            6┆ a6682411-c4d8-4fc4-b6c3-
+               539201029440,researcher1,researcher1@example.com,$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8
+               /LewY5PJx8y.w3qLry,user
+            ⋮┆----------------------------------------
+            7┆ 37171812-dca0-4cd2-ad3e-
+               23f251885d68,student1,student1@example.com,$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5
+               PJx8y.w3qLry,user
+
+    /src/projects/test-web-service/server.py
+    ❯❱ python.flask.security.audit.render-template-string.render-template-string
+          Found a template created with string formatting. This is susceptible to server-side template
+          injection and cross-site scripting attacks.
+          Details: https://sg.run/8yjE
+
+          387┆ return render_template_string(HTML_TEMPLATE,
+          388┆     status='正常运行',
+          389┆     timestamp=datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+          390┆     server_ip=get_local_ip(),
+          391┆     port=8848,
+          392┆     platform_info=f"{platform.system()} {platform.release()}",
+          393┆     cpu_percent=cpu_percent,
+          394┆     memory_percent=memory_percent,
+          395┆     process_id=os.getpid(),
+          396┆     start_time=datetime.now().strftime('%H:%M:%S'),
+             [hid 2 additional lines, adjust with --max-lines-per-finding]
+
+    ❯❱ python.flask.security.audit.app-run-param-config.avoid_app_run_with_bad_host
+          Running flask app with host 0.0.0.0 could expose the server publicly.
+          Details: https://sg.run/eLby
+
+          448┆ app.run(
+          449┆     host='0.0.0.0',  # 监听所有网络接口，允许局域网访问
+          450┆     port=8848,       # 指定端口
+          451┆     debug=False,     # 生产模式
+          452┆     threaded=True    # 多线程支持
+          453┆ )
+
+
+
+┌──────────────┐
+│ Scan Summary │
+└──────────────┘
+✅ Scan completed successfully.
+ • Findings: 15 (15 blocking)
+ • Rules run: 489
+ • Targets scanned: 391
+ • Parsed lines: ~99.9%
+ • Scan skipped:
+   ◦ Files larger than  files 1.0 MB: 1
+ • Scan was limited to files tracked by git
+ • For a detailed list of skipped files and lines, run semgrep with the --verbose flag
+Ran 489 rules on 391 files: 15 findings.

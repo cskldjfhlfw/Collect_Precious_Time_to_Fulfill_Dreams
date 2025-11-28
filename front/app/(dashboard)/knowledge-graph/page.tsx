@@ -706,7 +706,12 @@ export default function KnowledgeGraphPage() {
                         {Object.entries(selectedNode.properties || {}).map(([key, value]) => (
                           <div key={key} className="rounded-md bg-muted/60 px-2 py-1.5 text-[11px]">
                             <span className="text-muted-foreground">{key}：</span>
-                            <span className="break-all font-medium">{String(value)}</span>
+                            <span className="break-all font-medium">
+                              {typeof value === 'object' && value !== null 
+                                ? JSON.stringify(value) 
+                                : String(value)
+                              }
+                            </span>
                           </div>
                         ))}
                         {Object.keys(selectedNode.properties || {}).length === 0 && (

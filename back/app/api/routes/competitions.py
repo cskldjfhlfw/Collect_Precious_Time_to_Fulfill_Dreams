@@ -22,6 +22,23 @@ router = APIRouter(prefix="/competitions", tags=["Competitions"])
 
 def map_competition_to_response(comp) -> dict:
     """将数据库模型映射到API响应格式"""
+    # 处理 members 字段，将字典转换为字符串列表
+    members = []
+    if comp.team_members and comp.team_members.get("members"):
+        for member in comp.team_members["members"]:
+            if isinstance(member, dict):
+                # 如果是字典，提取姓名
+                name = member.get("name", "")
+                affiliation = member.get("affiliation", "")
+                if affiliation:
+                    members.append(f"{name}({affiliation})")
+                else:
+                    members.append(name)
+            elif isinstance(member, str):
+                # 如果已经是字符串，直接添加
+                members.append(member)
+    
+    # 创建响应数据字典，注意不包含原始的team_members字段
     return {
         "id": comp.id,
         "name": comp.name,
@@ -29,7 +46,7 @@ def map_competition_to_response(comp) -> dict:
         "status": comp.status,
         "level": comp.level,
         "team": comp.mentor,  # 使用mentor字段作为team
-        "members": comp.team_members.get("members", []) if comp.team_members else [],
+        "members": members,
         "registration_date": comp.registration_deadline,
         "submission_deadline": comp.submission_deadline,
         "final_date": comp.award_date,
@@ -38,6 +55,7 @@ def map_competition_to_response(comp) -> dict:
         "description": None,  # 数据库中没有此字段
         "created_at": comp.created_at,
         "updated_at": comp.updated_at,
+        # 不要包含 team_members 字段，避免前端渲染对象导致错误
     }
 
 

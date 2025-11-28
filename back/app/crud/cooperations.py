@@ -1,5 +1,5 @@
 from typing import Dict
-from sqlalchemy import func, select
+from sqlalchemy import func, select, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.base import CRUDBase
@@ -46,8 +46,10 @@ class CRUDCooperation(CRUDBase[Cooperation, CooperationCreate, CooperationUpdate
     ) -> list[Cooperation]:
         """搜索合作"""
         search_query = select(self.model).where(
-            self.model.organization.ilike(f"%{query}%") |
-            self.model.content.ilike(f"%{query}%")
+            or_(
+                func.coalesce(self.model.organization, '').ilike(f"%{query}%"),
+                func.coalesce(self.model.content, '').ilike(f"%{query}%")
+            )
         ).offset(skip).limit(limit)
         
         result = await db.execute(search_query)

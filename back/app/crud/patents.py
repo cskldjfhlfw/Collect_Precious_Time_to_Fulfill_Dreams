@@ -1,6 +1,5 @@
 from typing import Dict
-
-from sqlalchemy import func, select
+from sqlalchemy import func, select, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.base import CRUDBase
@@ -67,9 +66,11 @@ class CRUDPatent(CRUDBase[Patent, PatentCreate, PatentUpdate]):
     ) -> list[Patent]:
         """搜索专利"""
         search_query = select(self.model).where(
-            self.model.name.ilike(f"%{query}%") |
-            self.model.patent_number.ilike(f"%{query}%") |
-            self.model.technology_field.ilike(f"%{query}%")
+            or_(
+                func.coalesce(self.model.name, '').ilike(f"%{query}%"),
+                func.coalesce(self.model.patent_number, '').ilike(f"%{query}%"),
+                func.coalesce(self.model.technology_field, '').ilike(f"%{query}%")
+            )
         ).offset(skip).limit(limit)
         
         result = await db.execute(search_query)

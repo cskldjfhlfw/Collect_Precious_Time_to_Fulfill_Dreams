@@ -114,15 +114,23 @@ async def test_token_blacklist():
     # 测试过期token（模拟）
     print("\n9️⃣ 测试添加已过期的token...")
     from datetime import datetime, timedelta
+    import os
     try:
         import jwt
-        # 创建一个1秒后过期的token
-        exp_time = datetime.utcnow() + timedelta(seconds=1)
-        expired_token = jwt.encode(
-            {"sub": "test_user_exp", "exp": exp_time},
-            "test_secret",
-            algorithm="HS256"
-        )
+        # 从环境变量读取JWT secret
+        jwt_secret = os.getenv("APP_JWT_SECRET_KEY", "")
+        if not jwt_secret:
+            print(f"   ⚠️  未设置APP_JWT_SECRET_KEY环境变量")
+            print(f"   ℹ️  跳过过期token测试")
+            expired_token = None
+        else:
+            # 创建一个1秒后过期的token
+            exp_time = datetime.utcnow() + timedelta(seconds=1)
+            expired_token = jwt.encode(
+                {"sub": "test_user_exp", "exp": exp_time},
+                jwt_secret,
+                algorithm="HS256"
+            )
     except Exception as e:
         print(f"   ⚠️  无法生成过期token: {e}")
         print(f"   ℹ️  跳过过期token测试")

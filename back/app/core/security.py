@@ -7,8 +7,10 @@ import hashlib
 import secrets
 from jose import JWTError, jwt
 
-# JWT配置
-SECRET_KEY = "your-secret-key-change-this-in-production-09af8s7df0a8sf"  # 请在生产环境中修改
+# JWT配置 - 从 Settings 读取
+from app.core.config import settings
+
+SECRET_KEY = settings.jwt_secret_key
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30 * 24 * 60  # 30天
 

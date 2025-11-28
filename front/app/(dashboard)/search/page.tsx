@@ -117,6 +117,32 @@ const getTypeColor = (type: string) => {
   }
 }
 
+const safeRenderField = (field: any, fallback: string = '未知'): string => {
+  if (!field) return fallback
+  
+  if (typeof field === 'string') return field
+  
+  if (typeof field === 'object') {
+    if (Array.isArray(field)) {
+      return field.length > 0 ? field.join(', ') : fallback
+    }
+    
+    if (field.members && Array.isArray(field.members)) {
+      return field.members.join(', ')
+    }
+    if (field.developers && Array.isArray(field.developers)) {
+      return field.developers.join(', ')
+    }
+    if (field.authors && Array.isArray(field.authors)) {
+      return field.authors.join(', ')
+    }
+    
+    return fallback
+  }
+  
+  return String(field)
+}
+
 export default function SearchPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedFilters, setSelectedFilters] = useState<string[]>([])
@@ -615,7 +641,7 @@ export default function SearchPage() {
                                 <Badge className="bg-blue-100 text-blue-800">论文</Badge>
                               </div>
                               <p className="text-sm text-muted-foreground">
-                                作者: {paper.authors} | 期刊: {paper.journal}
+                                作者: {safeRenderField(paper.authors)} | 期刊: {safeRenderField(paper.journal)}
                               </p>
                             </div>
                           </div>
@@ -649,7 +675,7 @@ export default function SearchPage() {
                                 <Badge className="bg-green-100 text-green-800">项目</Badge>
                               </div>
                               <p className="text-sm text-muted-foreground">
-                                负责人: {project.leader || project.principal_investigator} | 状态: {project.status}
+                                负责人: {safeRenderField(project.leader || project.principal_investigator)} | 状态: {safeRenderField(project.status)}
                               </p>
                             </div>
                           </div>
@@ -683,7 +709,7 @@ export default function SearchPage() {
                                 <Badge className="bg-green-100 text-green-800">专利</Badge>
                               </div>
                               <p className="text-sm text-muted-foreground">
-                                发明人: {patent.inventors || patent.applicant} | 状态: {patent.status}
+                                发明人: {safeRenderField(patent.inventors || patent.applicant)} | 状态: {safeRenderField(patent.status)}
                               </p>
                             </div>
                           </div>
@@ -717,7 +743,7 @@ export default function SearchPage() {
                                 <Badge className="bg-purple-100 text-purple-800">软著</Badge>
                               </div>
                               <p className="text-sm text-muted-foreground">
-                                开发者: {software.developers || software.applicant} | 状态: {software.status}
+                                开发者: {safeRenderField(software.developers || software.applicant || software.developer)} | 状态: {safeRenderField(software.status)}
                               </p>
                             </div>
                           </div>
@@ -751,7 +777,7 @@ export default function SearchPage() {
                                 <Badge className="bg-yellow-100 text-yellow-800">竞赛</Badge>
                               </div>
                               <p className="text-sm text-muted-foreground">
-                                类型: {competition.type || competition.category} | 状态: {competition.status}
+                                类型: {safeRenderField(competition.type || competition.category || competition.level)} | 状态: {safeRenderField(competition.status)}
                               </p>
                             </div>
                           </div>
@@ -785,7 +811,7 @@ export default function SearchPage() {
                                 <Badge className="bg-pink-100 text-pink-800">会议</Badge>
                               </div>
                               <p className="text-sm text-muted-foreground">
-                                地点: {conference.location} | 状态: {conference.status}
+                                地点: {safeRenderField(conference.location)} | 状态: {safeRenderField(conference.status)}
                               </p>
                             </div>
                           </div>
@@ -819,7 +845,7 @@ export default function SearchPage() {
                                 <Badge className="bg-indigo-100 text-indigo-800">合作</Badge>
                               </div>
                               <p className="text-sm text-muted-foreground">
-                                联系人: {cooperation.contact_person} | 状态: {cooperation.status}
+                                联系人: {safeRenderField(cooperation.contact_person || cooperation.organization)} | 状态: {safeRenderField(cooperation.status)}
                               </p>
                             </div>
                           </div>
@@ -853,7 +879,7 @@ export default function SearchPage() {
                                 <Badge className="bg-gray-100 text-gray-800">资源</Badge>
                               </div>
                               <p className="text-sm text-muted-foreground">
-                                类型: {resource.resource_type || resource.category} | 状态: {resource.status}
+                                类型: {safeRenderField(resource.resource_type || resource.category)} | 状态: {safeRenderField(resource.status)}
                               </p>
                             </div>
                           </div>

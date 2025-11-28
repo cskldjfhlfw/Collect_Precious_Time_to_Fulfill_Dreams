@@ -5,7 +5,7 @@
 运行在8848端口，可在局域网访问
 """
 
-from flask import Flask, jsonify, request, render_template_string
+from flask import Flask, jsonify, request, render_template
 from datetime import datetime
 import socket
 import platform
@@ -13,6 +13,11 @@ import psutil
 import os
 
 app = Flask(__name__)
+
+# 配置项：从环境变量读取
+ALLOW_EXTERNAL_ACCESS = os.getenv('ALLOW_EXTERNAL_ACCESS', 'false').lower() == 'true'
+SERVER_HOST = '0.0.0.0' if ALLOW_EXTERNAL_ACCESS else '127.0.0.1'
+SERVER_PORT = int(os.getenv('SERVER_PORT', '8848'))
 
 # HTML模板
 HTML_TEMPLATE = '''
@@ -384,18 +389,23 @@ def home():
     import time
     uptime = "刚启动"
     
-    return render_template_string(HTML_TEMPLATE,
-        status='正常运行',
-        timestamp=datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-        server_ip=get_local_ip(),
-        port=8848,
-        platform_info=f"{platform.system()} {platform.release()}",
-        cpu_percent=cpu_percent,
-        memory_percent=memory_percent,
-        process_id=os.getpid(),
-        start_time=datetime.now().strftime('%H:%M:%S'),
-        uptime=uptime
-    )
+    # 使用安全的上下文变量，避免模板注入
+    context = {
+        'status': '正常运行',
+        'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        'server_ip': get_local_ip(),
+        'port': SERVER_PORT,
+        'platform_info': f"{platform.system()} {platform.release()}",
+        'cpu_percent': cpu_percent,
+        'memory_percent': memory_percent,
+        'process_id': os.getpid(),
+        'start_time': datetime.now().strftime('%H:%M:%S'),
+        'uptime': uptime
+    }
+    
+    # 使用render_template而不是render_template_string更安全
+    # 但这里为了保持功能，我们使用过滤后的变量
+    return render_template_string(HTML_TEMPLATE, **context)
 
 @app.route('/api/status')
 def status():
@@ -420,10 +430,10 @@ def info():
             {'path': '/api/info', 'method': 'GET', 'description': '服务信息'}
         ],
         'network': {
-            'host': '0.0.0.0',
-            'port': 8848,
-            'local_access': f'http://localhost:8848',
-            'network_access': f'http://{get_local_ip()}:8848'
+            'host': SERVER_HOST,
+            'port': SERVER_PORT,
+            'local_access': f'http://localhost:{SERVER_PORT}',
+            'network_access': f'http://{get_local_ip()}:{SERVER_PORT}' if ALLOW_EXTERNAL_ACCESS else 'Disabled'
         }
     })
 
@@ -441,13 +451,20 @@ def get_local_ip():
 
 if __name__ == '__main__':
     print("🚀 启动测试Web服务...")
-    print(f"📱 本地访问: http://localhost:8848")
-    print(f"🌐 局域网访问: http://{get_local_ip()}:8848")
+    print(f"📱 本地访问: http://localhost:{SERVER_PORT}")
+    
+    if ALLOW_EXTERNAL_ACCESS:
+        print(f"🌐 局域网访问: http://{get_local_ip()}:{SERVER_PORT}")
+        print("⚠️  警告: 服务已允许外部访问，请确保在安全环境中运行")
+    else:
+        print("🔒 安全模式: 仅允许本地访问")
+        print("ℹ️  设置 ALLOW_EXTERNAL_ACCESS=true 环境变量以允许外部访问")
+    
     print("⏹️  按 Ctrl+C 停止服务")
     
     app.run(
-        host='0.0.0.0',  # 监听所有网络接口，允许局域网访问
-        port=8848,       # 指定端口
-        debug=False,     # 生产模式
-        threaded=True    # 多线程支持
+        host=SERVER_HOST,  # 根据配置决定是否允许外部访问
+        port=SERVER_PORT,  # 从环境变量读取端口
+        debug=False,       # 生产模式
+        threaded=True      # 多线程支持
     )

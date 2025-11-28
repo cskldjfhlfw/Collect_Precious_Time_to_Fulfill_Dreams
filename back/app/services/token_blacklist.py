@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import jwt
 import hashlib
 import json
+import os
 
 from app.db.redis import get_client
 from app.core.config import settings
@@ -15,9 +16,12 @@ class TokenBlacklistService:
     # Redis键前缀
     BLACKLIST_PREFIX = "token:blacklist"
     
-    # JWT配置（需要与你的实际配置匹配）
-    JWT_SECRET_KEY = "your-secret-key-here"  # 实际使用时应从配置读取
+    # JWT配置 - 从环境变量读取
+    JWT_SECRET_KEY = os.getenv("APP_JWT_SECRET_KEY", "")
     JWT_ALGORITHM = "HS256"
+    
+    # 默认TTL（24小时），当无法解析token时使用
+    DEFAULT_TTL = 24 * 3600
     
     @staticmethod
     async def add_to_blacklist(token: str, reason: str = "logout") -> bool:
@@ -34,38 +38,35 @@ class TokenBlacklistService:
             return False
         
         try:
-            # 解析token获取过期时间
+            # 使用token哈希作为键（更安全，不需要解析token）
+            token_hash = hashlib.sha256(token.encode()).hexdigest()
+            key = f"{TokenBlacklistService.BLACKLIST_PREFIX}:{token_hash}"
+            
+            # 尝试解析token获取过期时间（如果失败则使用默认TTL）
             try:
-                payload = jwt.decode(
-                    token,
-                    options={"verify_signature": False}  # 只解析不验证
-                )
-                exp = payload.get("exp")
-                jti = payload.get("jti")  # Token唯一标识符
-                
-                if not exp:
-                    print("Token没有过期时间，使用默认24小时")
-                    ttl = 24 * 3600
+                if TokenBlacklistService.JWT_SECRET_KEY:
+                    # 使用验证签名的方式解析token
+                    payload = jwt.decode(
+                        token,
+                        TokenBlacklistService.JWT_SECRET_KEY,
+                        algorithms=[TokenBlacklistService.JWT_ALGORITHM]
+                    )
+                    exp = payload.get("exp")
+                    
+                    if exp:
+                        # 计算剩余有效期
+                        exp_datetime = datetime.fromtimestamp(exp)
+                        now = datetime.now()
+                        ttl = max(int((exp_datetime - now).total_seconds()), 60)
+                    else:
+                        ttl = TokenBlacklistService.DEFAULT_TTL
                 else:
-                    # 计算剩余有效期
-                    exp_datetime = datetime.fromtimestamp(exp)
-                    now = datetime.now()
-                    ttl = max(int((exp_datetime - now).total_seconds()), 60)
-                
-                # 使用jti作为键（如果有），否则使用token哈希
-                if jti:
-                    key = f"{TokenBlacklistService.BLACKLIST_PREFIX}:{jti}"
-                else:
-                    # 使用token的哈希值作为键
-                    token_hash = hashlib.sha256(token.encode()).hexdigest()
-                    key = f"{TokenBlacklistService.BLACKLIST_PREFIX}:{token_hash}"
-                
+                    # 如果没有配置密钥，使用默认TTL
+                    ttl = TokenBlacklistService.DEFAULT_TTL
             except Exception as e:
-                # 如果无法解析token，使用默认过期时间
-                print(f"无法解析token: {e}，使用默认24小时")
-                token_hash = hashlib.sha256(token.encode()).hexdigest()
-                key = f"{TokenBlacklistService.BLACKLIST_PREFIX}:{token_hash}"
-                ttl = 24 * 3600
+                # 如果解析失败，使用默认TTL
+                print(f"无法解析token: {e}，使用默认TTL")
+                ttl = TokenBlacklistService.DEFAULT_TTL
             
             client = get_client()
             
@@ -102,23 +103,9 @@ class TokenBlacklistService:
             return False
         
         try:
-            # 解析token获取jti
-            try:
-                payload = jwt.decode(
-                    token,
-                    options={"verify_signature": False}
-                )
-                jti = payload.get("jti")
-                
-                if jti:
-                    key = f"{TokenBlacklistService.BLACKLIST_PREFIX}:{jti}"
-                else:
-                    token_hash = hashlib.sha256(token.encode()).hexdigest()
-                    key = f"{TokenBlacklistService.BLACKLIST_PREFIX}:{token_hash}"
-                    
-            except Exception:
-                token_hash = hashlib.sha256(token.encode()).hexdigest()
-                key = f"{TokenBlacklistService.BLACKLIST_PREFIX}:{token_hash}"
+            # 使用token哈希作为键
+            token_hash = hashlib.sha256(token.encode()).hexdigest()
+            key = f"{TokenBlacklistService.BLACKLIST_PREFIX}:{token_hash}"
             
             client = get_client()
             exists = await client.exists(key)
@@ -143,23 +130,9 @@ class TokenBlacklistService:
             return False
         
         try:
-            # 解析token获取jti
-            try:
-                payload = jwt.decode(
-                    token,
-                    options={"verify_signature": False}
-                )
-                jti = payload.get("jti")
-                
-                if jti:
-                    key = f"{TokenBlacklistService.BLACKLIST_PREFIX}:{jti}"
-                else:
-                    token_hash = hashlib.sha256(token.encode()).hexdigest()
-                    key = f"{TokenBlacklistService.BLACKLIST_PREFIX}:{token_hash}"
-                    
-            except (DecodeError, InvalidTokenError, Exception):
-                token_hash = hashlib.sha256(token.encode()).hexdigest()
-                key = f"{TokenBlacklistService.BLACKLIST_PREFIX}:{token_hash}"
+            # 使用token哈希作为键
+            token_hash = hashlib.sha256(token.encode()).hexdigest()
+            key = f"{TokenBlacklistService.BLACKLIST_PREFIX}:{token_hash}"
             
             client = get_client()
             deleted = await client.delete(key)
