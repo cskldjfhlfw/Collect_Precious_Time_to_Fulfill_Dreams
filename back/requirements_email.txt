@@ -1,3 +1,0 @@
-# 邮件发送依赖
-aiosmtplib==3.0.1
-email-validator==2.1.0
