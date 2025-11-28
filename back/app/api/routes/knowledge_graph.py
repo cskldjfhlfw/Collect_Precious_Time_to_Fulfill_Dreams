@@ -47,10 +47,10 @@ async def get_knowledge_graph_nodes(
             label=paper.title,
             type="paper",
             properties={
-                "author": (paper.authors.get("first_author", "未知") if isinstance(paper.authors, dict) and paper.authors else "未知") if paper.authors else "未知",
+                "author": paper.authors.get("first_author", "未知") if paper.authors else "未知",
                 "year": paper.publish_date.year if paper.publish_date else 2024,
-                "citations": paper.citation_count or 0,
-                "status": str(paper.status) if paper.status else "未知"
+                "citations": paper.citation_count,
+                "status": paper.status
             }
         ))
     
@@ -68,10 +68,10 @@ async def get_knowledge_graph_nodes(
             label=project.name,
             type="project",
             properties={
-                "principal": str(project.principal) if project.principal else "未知",
-                "status": str(project.status) if project.status else "未知",
+                "principal": project.principal or "未知",
+                "status": project.status,
                 "budget": float(project.budget) if project.budget else 0,
-                "progress": int(project.progress_percent) if project.progress_percent else 0
+                "progress": project.progress_percent
             }
         ))
     
@@ -89,10 +89,10 @@ async def get_knowledge_graph_nodes(
             label=patent.name,
             type="patent",
             properties={
-                "patent_number": str(patent.patent_number) if patent.patent_number else "未知",
-                "status": str(patent.status) if patent.status else "未知",
-                "type": str(patent.patent_type) if patent.patent_type else "未知",
-                "field": str(patent.technology_field) if patent.technology_field else "未知"
+                "patent_number": patent.patent_number,
+                "status": patent.status,
+                "type": patent.patent_type,
+                "field": patent.technology_field or "未知"
             }
         ))
     
@@ -192,15 +192,8 @@ async def get_knowledge_graph_from_neo4j(
         node_result = await neo_session.run(node_query, type=type, limit=limit)
         async for record in node_result:
             neo_node = record["n"]
-            # Neo4j Node 对象可以像字典一样访问属性，确保所有值都是可序列化的
-            raw_properties = dict(neo_node)
-            properties = {}
-            for key, value in raw_properties.items():
-                if isinstance(value, (str, int, float, bool)) or value is None:
-                    properties[key] = value
-                else:
-                    # 对于复杂对象，转换为字符串
-                    properties[key] = str(value)
+            # Neo4j Node 对象可以像字典一样访问属性
+            properties = dict(neo_node)
 
             # 使用 element_id 作为稳定的节点 ID，如果不可用则退回到 id
             raw_id = getattr(neo_node, "element_id", None) or getattr(neo_node, "id", None)
@@ -239,14 +232,7 @@ async def get_knowledge_graph_from_neo4j(
             # 确保关系两端的节点也在节点集合中
             for neo_node, node_id in ((source_node, source_id), (target_node, target_id)):
                 if node_id not in nodes:
-                    raw_props = dict(neo_node)
-                    props = {}
-                    for key, value in raw_props.items():
-                        if isinstance(value, (str, int, float, bool)) or value is None:
-                            props[key] = value
-                        else:
-                            props[key] = str(value)
-                    
+                    props = dict(neo_node)
                     labels = list(getattr(neo_node, "labels", []))
                     node_type = labels[0].lower() if labels else "unknown"
                     label = (

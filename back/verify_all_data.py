@@ -44,27 +44,9 @@ async def verify_postgresql():
         ]
         
         print(f"\n📊 表记录统计:")
-        # 定义允许的表名白名单
-        allowed_tables = {
-            "papers", "patents", "projects", "competitions", "resources", 
-            "tags", "paper_authors", "project_milestones", "achievement_tags"
-        }
-        
         for table_name, chinese_name in tables:
             try:
-                # 验证表名是否在白名单中
-                if table_name not in allowed_tables:
-                    print(f"   {chinese_name}: 跳过 - 非法表名")
-                    continue
-                
-                # 使用参数化查询（但表名不能参数化，所以使用白名单验证）
-                from sqlalchemy import table, column, func
-                from sqlalchemy.sql import select as sql_select
-                
-                # 动态构建表对象
-                t = table(table_name)
-                query = sql_select(func.count()).select_from(t)
-                result = await session.execute(query)
+                result = await session.execute(text(f"SELECT COUNT(*) FROM {table_name}"))
                 count = result.scalar()
                 print(f"   {chinese_name}: {count} 条")
             except Exception as e:

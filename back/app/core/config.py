@@ -37,9 +37,6 @@ class Settings(BaseSettings):
     redis_dsn: Optional[RedisDsn] = Field(default=None, description="Redis DSN, e.g. redis://localhost:6379/0")
     redis_ssl: bool = Field(default=False, description="Whether to enforce SSL for Redis connections")
 
-    # JWT 密钥配置
-    jwt_secret_key: str = Field(description="JWT secret key for token signing and verification")
-
     # AI模型配置
     zhipu_api_key: Optional[str] = Field(default=None, description="Zhipu AI API Key")
     openai_api_key: Optional[str] = Field(default=None, description="OpenAI API Key")

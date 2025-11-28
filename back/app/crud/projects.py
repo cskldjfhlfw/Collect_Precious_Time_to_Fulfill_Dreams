@@ -1,5 +1,6 @@
 from typing import Dict
-from sqlalchemy import func, select, or_
+
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.base import CRUDBase
@@ -79,10 +80,8 @@ class CRUDProject(CRUDBase[Project, ProjectCreate, ProjectUpdate]):
     ) -> list[Project]:
         """搜索项目"""
         search_query = select(self.model).where(
-            or_(
-                func.coalesce(self.model.name, '').ilike(f"%{query}%"),
-                func.coalesce(self.model.description, '').ilike(f"%{query}%")
-            )
+            self.model.name.ilike(f"%{query}%") |
+            self.model.description.ilike(f"%{query}%")
         ).offset(skip).limit(limit)
         
         result = await db.execute(search_query)

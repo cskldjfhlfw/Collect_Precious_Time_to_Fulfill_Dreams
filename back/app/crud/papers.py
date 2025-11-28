@@ -1,7 +1,7 @@
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 from uuid import UUID
 
-from sqlalchemy import func, select, or_
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.base import CRUDBase
@@ -75,10 +75,8 @@ class CRUDPaper(CRUDBase[Paper, PaperCreate, PaperUpdate]):
     ) -> list[Paper]:
         """搜索论文"""
         search_query = select(self.model).where(
-            or_(
-                func.coalesce(self.model.title, '').ilike(f"%{query}%"),
-                func.coalesce(self.model.abstract, '').ilike(f"%{query}%")
-            )
+            self.model.title.ilike(f"%{query}%") |
+            self.model.abstract.ilike(f"%{query}%")
         ).offset(skip).limit(limit)
         
         result = await db.execute(search_query)
