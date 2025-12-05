@@ -1,0 +1,223 @@
+================================================================================
+                    Docker 部署常用命令速查手册
+================================================================================
+
+【项目目录】d:\desk\Collect_Precious_Time_to_Fulfill_Dreams
+【注意】所有命令都需要在项目根目录下执行
+
+================================================================================
+一、启动与停止
+================================================================================
+
+# 首次启动（构建镜像并启动所有容器）
+docker compose up -d --build
+
+# 日常启动（已有镜像，直接启动）
+docker compose up -d
+
+# 停止所有容器（保留数据）
+docker compose down
+
+# 停止并删除所有数据（慎用！会清空数据库）
+docker compose down -v
+
+# 重启所有容器
+docker compose restart
+
+# 重启单个服务
+docker compose restart backend
+docker compose restart frontend
+
+================================================================================
+二、查看状态与日志
+================================================================================
+
+# 查看所有容器运行状态
+docker compose ps
+
+# 查看所有容器日志
+docker compose logs
+
+# 查看指定服务日志
+docker compose logs backend
+docker compose logs frontend
+docker compose logs postgres
+
+# 实时跟踪日志（Ctrl+C 退出）
+docker compose logs -f backend
+
+# 查看最近 100 行日志
+docker compose logs --tail 100 backend
+
+================================================================================
+三、进入容器内部
+================================================================================
+
+# 进入后端容器（执行 Python 命令等）
+docker exec -it cpt_backend bash
+
+# 进入前端容器
+docker exec -it cpt_frontend sh
+
+# 进入 PostgreSQL（执行 SQL）
+docker exec -it cpt_postgres psql -U appuser -d appdb
+
+# 进入 MongoDB
+docker exec -it cpt_mongo mongosh -u mongouser -p mongopassword
+
+# 进入 Redis
+docker exec -it cpt_redis redis-cli
+
+# 退出容器：输入 exit 或按 Ctrl+D
+
+================================================================================
+四、数据库操作
+================================================================================
+
+【PostgreSQL】
+# 连接信息：localhost:5432，用户 appuser，密码 apppassword，库 appdb
+
+# 备份数据库
+docker exec cpt_postgres pg_dump -U appuser appdb > backup.sql
+
+# 恢复数据库
+docker exec -i cpt_postgres psql -U appuser appdb < backup.sql
+
+# 执行 SQL 文件
+docker cp your_file.sql cpt_postgres:/tmp/
+docker exec -it cpt_postgres psql -U appuser -d appdb -f /tmp/your_file.sql
+
+【MongoDB】
+# 连接信息：mongodb://mongouser:mongopassword@localhost:27017
+
+# 备份
+docker exec cpt_mongo mongodump -u mongouser -p mongopassword -o /tmp/backup
+docker cp cpt_mongo:/tmp/backup ./mongo_backup
+
+# 恢复
+docker cp ./mongo_backup cpt_mongo:/tmp/backup
+docker exec cpt_mongo mongorestore -u mongouser -p mongopassword /tmp/backup
+
+【Redis】
+# 连接信息：localhost:6379
+
+# 查看所有 key
+docker exec -it cpt_redis redis-cli KEYS "*"
+
+# 清空 Redis（慎用）
+docker exec -it cpt_redis redis-cli FLUSHALL
+
+【Neo4j】
+# Web 管理界面：http://localhost:7474
+# 账号：neo4j，密码：neopassword
+
+================================================================================
+五、镜像管理
+================================================================================
+
+# 查看所有镜像
+docker images
+
+# 重新构建镜像（代码改动后）
+docker compose build
+
+# 强制重新构建（不用缓存）
+docker compose build --no-cache
+
+# 只构建某个服务
+docker compose build backend
+
+# 删除未使用的镜像（清理空间）
+docker image prune
+
+# 查看 Docker 磁盘占用
+docker system df
+
+# 清理所有未使用资源（镜像、容器、网络、缓存）
+docker system prune -a
+
+================================================================================
+六、导出与分享
+================================================================================
+
+# 导出镜像为 tar 文件
+docker save -o cpt-backend.tar collect_precious_time_to_fulfill_dreams-backend:latest
+docker save -o cpt-frontend.tar collect_precious_time_to_fulfill_dreams-frontend:latest
+
+# 导入镜像
+docker load -i cpt-backend.tar
+docker load -i cpt-frontend.tar
+
+================================================================================
+七、配置修改
+================================================================================
+
+# 修改环境变量后重启生效
+# 1. 编辑 back/.env.docker
+# 2. 重启后端
+docker compose restart backend
+
+# 修改 docker-compose.yml 后重新创建容器
+docker compose up -d
+
+================================================================================
+八、故障排查
+================================================================================
+
+# 查看容器详细信息
+docker inspect cpt_backend
+
+# 查看容器资源占用
+docker stats
+
+# 查看某个容器的端口映射
+docker port cpt_backend
+
+# 检查网络
+docker network ls
+docker network inspect collect_precious_time_to_fulfill_dreams_app-net
+
+# 端口被占用排查（Windows PowerShell）
+netstat -ano | findstr :8000
+netstat -ano | findstr :3000
+
+================================================================================
+九、访问地址
+================================================================================
+
+前端页面：        http://localhost:3000
+后端 API 文档：   http://localhost:8000/docs
+健康检查：        http://localhost:8000/api/health
+Neo4j 管理界面：  http://localhost:7474
+
+================================================================================
+十、数据库连接信息汇总
+================================================================================
+
+【PostgreSQL】
+  Host:     localhost (容器内用 postgres)
+  Port:     5432
+  User:     appuser
+  Password: apppassword
+  Database: appdb
+
+【MongoDB】
+  Host:     localhost (容器内用 mongo)
+  Port:     27017
+  User:     mongouser
+  Password: mongopassword
+  Database: academic_db
+
+【Redis】
+  Host:     localhost (容器内用 redis)
+  Port:     6379
+  Password: (无)
+
+【Neo4j】
+  Host:     localhost (容器内用 neo4j)
+  Bolt:     7687
+  HTTP:     7474
+  User:     neo4j
+  Password: neopassword
+
+================================================================================

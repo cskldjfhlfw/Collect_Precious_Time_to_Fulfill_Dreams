@@ -1,0 +1,127 @@
+version: "3.9"
+
+services:
+  # ==================== 后端服务 ====================
+  backend:
+    build:
+      context: ./back
+      dockerfile: Dockerfile
+    container_name: cpt_backend
+    env_file:
+      - ./back/.env.docker
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongo:
+        condition: service_started
+      redis:
+        condition: service_healthy
+      neo4j:
+        condition: service_started
+    ports:
+      - "8000:8000"
+    networks:
+      - app-net
+    restart: unless-stopped
+
+  # ==================== 前端服务 ====================
+  frontend:
+    build:
+      context: ./front
+      dockerfile: Dockerfile
+    container_name: cpt_frontend
+    environment:
+      # 浏览器端访问后端的地址
+      NEXT_PUBLIC_API_BASE_URL: "http://localhost:8000"
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+    networks:
+      - app-net
+    restart: unless-stopped
+
+  # ==================== PostgreSQL ====================
+  postgres:
+    image: postgres:14
+    container_name: cpt_postgres
+    environment:
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: apppassword
+      POSTGRES_DB: appdb
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - app-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U appuser -d appdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ==================== MongoDB ====================
+  mongo:
+    image: mongo:6
+    container_name: cpt_mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongouser
+      MONGO_INITDB_ROOT_PASSWORD: mongopassword
+      MONGO_INITDB_DATABASE: academic_db
+    volumes:
+      - mongo-data:/data/db
+    ports:
+      - "27017:27017"
+    networks:
+      - app-net
+    restart: unless-stopped
+
+  # ==================== Redis ====================
+  redis:
+    image: redis:7
+    container_name: cpt_redis
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - app-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ==================== Neo4j ====================
+  neo4j:
+    image: neo4j:5
+    container_name: cpt_neo4j
+    environment:
+      NEO4J_AUTH: neo4j/neopassword
+      NEO4J_PLUGINS: '["apoc"]'
+    volumes:
+      - neo4j-data:/data
+      - neo4j-logs:/logs
+    ports:
+      - "7474:7474"   # Web UI
+      - "7687:7687"   # Bolt 协议
+    networks:
+      - app-net
+    restart: unless-stopped
+
+# ==================== 网络 ====================
+networks:
+  app-net:
+    driver: bridge
+
+# ==================== 数据卷 ====================
+volumes:
+  postgres-data:
+  mongo-data:
+  redis-data:
+  neo4j-data:
+  neo4j-logs:
